@@ -1,58 +1,20 @@
-﻿# Water Potability Prediction Using Machine Learning
+# Water Potability Prediction Using Machine Learning
+
+A machine learning-based water quality classification system that predicts whether a water sample is Potable (Safe to Drink) or Non-Potable (Not Safe to Drink) using physicochemical water-quality parameters.
 
 ## Project Overview
 
-This project predicts whether a water sample is potable (safe to drink) or non-potable (not safe to drink) using Machine Learning.
-
-The project is based on the research paper:
-
-**"Predicting Water Potability Using a Machine Learning Approach"**
-
-The system implements multiple classification algorithms, compares their performance using standard evaluation metrics, and introduces a **Hyperparameter-Tuned Random Forest** as the proposed model.
-
-An interactive **Streamlit dashboard** is also provided for water potability prediction.
-
----
-
-## Objective
-
-The main objectives of this project are:
-
-- Analyze water-quality parameters using Exploratory Data Analysis.
-- Handle missing values and preprocess the dataset.
-- Split the dataset into training, validation, and testing sets.
-- Train multiple Machine Learning classification models.
-- Compare model performance using Accuracy, Precision, Recall, F1-Score, and ROC-AUC.
-- Perform 5-Fold Cross-Validation.
-- Develop a proposed model using hyperparameter tuning.
-- Evaluate the proposed model on unseen test data.
-- Deploy the prediction system using Streamlit.
-
----
+This project analyzes the Kaggle Water Potability Dataset and compares multiple machine learning classification models. Random Forest and Support Vector Machine (SVM) are implemented as compulsory models. A Hyperparameter-Tuned Random Forest is developed as the proposed model.
 
 ## Dataset
 
-**Dataset:** Water Potability Dataset  
-**Source:** Kaggle
+- Total Samples: 3276
+- Input Features: 9
+- Total Columns: 10
+- Target Column: Potability
+- Duplicate Rows: 0
 
-### Dataset Size
-
-- 3276 samples
-- 9 input features
-- 1 target variable
-
-### Target Variable
-
-| Value | Meaning |
-|---|---|
-| 0 | Non-Potable / Not Safe |
-| 1 | Potable / Safe |
-
----
-
-## Input Features
-
-The model uses the following physicochemical water-quality parameters:
+### Input Features
 
 1. pH
 2. Hardness
@@ -64,95 +26,191 @@ The model uses the following physicochemical water-quality parameters:
 8. Trihalomethanes
 9. Turbidity
 
----
+### Target
 
-## Exploratory Data Analysis
+- 0 = Non-Potable / Not Safe
+- 1 = Potable / Safe
 
-The dataset contains **3276 rows and 10 columns**.
+## Machine Learning Workflow
 
-### Duplicate Records
+Dataset Collection -> EDA -> Missing Value Handling -> Train/Validation/Test Split -> Imputation -> Feature Scaling -> Model Training -> Hyperparameter Tuning -> Model Evaluation -> Model Comparison -> Final Prediction
 
-- Duplicate rows: **0**
+## Models
 
-### Missing Values
+The following models are compared:
 
-| Feature | Missing Values |
+1. Random Forest
+2. Support Vector Machine (SVM)
+3. Logistic Regression
+4. Decision Tree
+5. K-Nearest Neighbors (KNN)
+6. Hyperparameter-Tuned Random Forest - Proposed Model
+
+### Proposed Model
+
+The proposed model is a Hyperparameter-Tuned Random Forest. GridSearchCV is used for hyperparameter optimization.
+
+Best parameters:
+
+- n_estimators = 300
+- max_depth = 10
+- max_features = sqrt
+- min_samples_leaf = 1
+- min_samples_split = 5
+
+SVM is treated as a standard existing model and is not labelled as the proposed model.
+
+## Evaluation Metrics
+
+The models are evaluated using:
+
+- Accuracy
+- Precision
+- Recall
+- F1-Score
+- ROC-AUC
+- Confusion Matrix
+- 5-Fold Cross-Validation
+
+## Validation Results
+
+| Model | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
+|---|---:|---:|---:|---:|---:|
+| Tuned Random Forest | 0.6517 | 0.5714 | 0.4188 | 0.4834 | 0.6594 |
+| SVM | 0.6273 | 0.5208 | 0.5236 | 0.5222 | 0.6570 |
+| Random Forest | 0.6436 | 0.5588 | 0.3979 | 0.4648 | 0.6505 |
+| KNN | 0.6314 | 0.5379 | 0.3717 | 0.4396 | 0.6286 |
+| Decision Tree | 0.6090 | 0.4970 | 0.4346 | 0.4637 | 0.5773 |
+| Logistic Regression | 0.5214 | 0.4141 | 0.5550 | 0.4743 | 0.5331 |
+
+The Hyperparameter-Tuned Random Forest achieved the highest validation accuracy and precision among the compared models and was selected as the proposed model.
+
+## Cross-Validation Results
+
+5-fold cross-validation was performed using ROC-AUC.
+
+| Model | Mean ROC-AUC | Std. Deviation |
+|---|---:|---:|
+| SVM | 0.7037 | 0.0140 |
+| Random Forest | 0.6918 | 0.0174 |
+| Tuned Random Forest | 0.6892 | 0.0213 |
+| KNN | 0.6278 | 0.0113 |
+| Decision Tree | 0.5563 | 0.0243 |
+| Logistic Regression | 0.4855 | 0.0181 |
+
+SVM achieved the highest mean cross-validation ROC-AUC. However, the proposed model was selected based on overall validation performance rather than a single metric.
+
+Differences from the base paper can occur because of preprocessing, missing-value handling, data splitting, hyperparameter settings, dataset distribution, and evaluation methodology.
+
+## Final Test Results
+
+| Metric | Result |
 |---|---:|
-| pH | 491 |
-| Sulfate | 781 |
-| Trihalomethanes | 162 |
+| Accuracy | 64.84% |
+| Precision | 55.76% |
+| Recall | 47.92% |
+| F1-Score | 51.54% |
+| ROC-AUC | 0.6758 |
 
-### Target Distribution
+### Final Confusion Matrix
 
-| Class | Samples |
-|---|---:|
-| Non-Potable (0) | 1998 |
-| Potable (1) | 1278 |
+| | Predicted Non-Potable | Predicted Potable |
+|---|---:|---:|
+| Actual Non-Potable | 227 | 73 |
+| Actual Potable | 100 | 92 |
 
----
+## Streamlit Dashboard
 
-## Data Preprocessing
+The project includes an interactive Streamlit dashboard with the following sections:
 
-The following preprocessing steps were performed:
+- Dashboard
+- Dataset Summary
+- Model Performance
+- Model Comparison
+- Water Potability Prediction
 
-1. Dataset loading
-2. Duplicate checking
-3. Missing-value analysis
-4. Median-value imputation
-5. Train-validation-test splitting
-6. Feature scaling using StandardScaler
-7. Preprocessing pipeline creation
-8. Saving the preprocessing pipeline using Joblib
+The prediction page allows users to enter all nine water-quality parameters and receive a Potable or Non-Potable prediction along with prediction probabilities.
 
-### Dataset Split
+## Project Structure
 
-| Dataset | Samples |
-|---|---:|
-| Training | 2293 |
-| Validation | 491 |
-| Testing | 492 |
+`	ext
+Water-Potability-ML/
+|
+|-- app.py
+|-- README.md
+|-- requirements.txt
+|
+|-- data/
+|   |-- water_potability.csv
+|
+|-- models/
+|   |-- best_model.joblib
+|   |-- preprocessor.joblib
+|
+|-- outputs/
+|   |-- validation_results.csv
+|   |-- final_test_metrics.csv
+|   |-- final_confusion_matrix.csv
+|   |-- cross_validation_results.csv
+|   |-- confusion_matrix.png
+|   |-- roc_curve.png
+|   |-- accuracy_comparison.png
+|   |-- f1_comparison.png
+|   |-- roc_auc_comparison.png
+|   |-- model_comparison.png
+|
+|-- src/
+    |-- preprocessing.py
+    |-- train_models.py
+`
 
-The preprocessing pipeline is saved as:
+## Requirements
 
-`models/preprocessor.joblib`
+The project requires Python and the following libraries:
 
----
+- Streamlit
+- Pandas
+- NumPy
+- Scikit-learn
+- Joblib
+- Matplotlib
 
-## Machine Learning Models
+All dependencies are listed in requirements.txt.
 
-The following classification models were implemented:
+## Installation
 
-- Random Forest
-- Support Vector Machine (SVM)
-- Logistic Regression
-- Decision Tree
-- K-Nearest Neighbors (KNN)
+Install the required dependencies using:
 
-Random Forest and SVM were included as the primary models based on the base research paper.
+`ash
+pip install -r requirements.txt
+`
 
----
+## Usage
 
-## Proposed Model
+Run the Streamlit application using:
 
-The proposed model in this project is:
+`ash
+streamlit run app.py
+`
 
-### Hyperparameter-Tuned Random Forest
+The application opens in the browser. Use the sidebar to navigate through the dashboard, dataset summary, model performance, model comparison, and prediction pages.
 
-Random Forest hyperparameters were optimized using **GridSearchCV with 5-fold cross-validation**.
+## Model Files
 
-The search considered:
+The trained proposed model is saved at:
 
-- Number of estimators
-- Maximum depth
-- Maximum features
-- Minimum samples split
-- Minimum samples leaf
+models/best_model.joblib
 
-### Best Parameters
+The preprocessing pipeline is saved at:
 
-```text
-n_estimators = 300
-max_depth = 10
-max_features = sqrt
-min_samples_split = 5
-min_samples_leaf = 1
+models/preprocessor.joblib
+
+Both files are loaded by the Streamlit application during prediction.
+
+## Outputs
+
+The outputs folder contains validation results, final test metrics, confusion matrix, ROC curve, cross-validation results, and model comparison visualizations.
+
+## Conclusion
+
+This project demonstrates machine learning-based water potability classification using physicochemical water-quality parameters. Random Forest and SVM were implemented as compulsory models, while additional models were included for comparison. A Hyperparameter-Tuned Random Forest was developed as the proposed model using GridSearchCV. The final Streamlit dashboard provides an interactive interface for analysis and prediction.
