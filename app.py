@@ -102,7 +102,7 @@ if page == "Dashboard":
         st.metric("Input Features", 9)
 
     with col3:
-        st.metric("Best Model", "SVM")
+        st.metric("Best Model", "Tuned Random Forest")
 
     with col4:
         st.metric("Target Classes", 2)
@@ -117,7 +117,7 @@ if page == "Dashboard":
         st.write("Project: Water Potability Prediction")
         st.write("Dataset: Kaggle Water Potability Dataset")
         st.write("Primary Models: Random Forest and SVM")
-        st.write("Best Model: Support Vector Machine")
+        st.write("Best Model: Hyperparameter-Tuned Random Forest")
 
     with info_col2:
         st.write("Target: Potability")
@@ -267,7 +267,7 @@ elif page == "Model Performance":
     if confusion_path.exists():
         st.image(
             str(confusion_path),
-            caption="SVM Confusion Matrix",
+            caption="Tuned Random Forest Confusion Matrix",
             use_container_width=True
         )
     else:
@@ -280,7 +280,7 @@ elif page == "Model Performance":
     if roc_path.exists():
         st.image(
             str(roc_path),
-            caption="SVM ROC Curve",
+            caption="Tuned Random Forest ROC Curve",
             use_container_width=True
         )
     else:
@@ -531,3 +531,4 @@ st.caption(
     "Water Potability Prediction Using Machine Learning | "
     "Random Forest and SVM based classification project"
 )
+
