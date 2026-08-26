@@ -576,6 +576,93 @@ cm_df.to_csv(
     )
 )
 
+# ============================================================
+# Save Final Confusion Matrix Plot
+# ============================================================
+
+import matplotlib.pyplot as plt
+from sklearn.metrics import ConfusionMatrixDisplay, roc_curve
+
+cm_display = ConfusionMatrixDisplay(
+    confusion_matrix=cm,
+    display_labels=["Non-Potable", "Potable"]
+)
+
+fig, ax = plt.subplots(figsize=(8, 6))
+cm_display.plot(ax=ax)
+
+ax.set_title(
+    f"Confusion Matrix - {best_model_name}"
+)
+
+fig.tight_layout()
+
+fig.savefig(
+    os.path.join(
+        OUTPUT_DIR,
+        "confusion_matrix.png"
+    ),
+    dpi=200,
+    bbox_inches="tight"
+)
+
+plt.close(fig)
+
+
+# ============================================================
+# Save Final ROC Curve
+# ============================================================
+
+if hasattr(best_model, "predict_proba"):
+
+    test_probabilities = best_model.predict_proba(X_test)[:, 1]
+
+    fpr, tpr, _ = roc_curve(
+        y_test,
+        test_probabilities
+    )
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    ax.plot(
+        fpr,
+        tpr,
+        label=f"ROC-AUC = {test_results['ROC-AUC']:.4f}"
+    )
+
+    ax.plot(
+        [0, 1],
+        [0, 1],
+        linestyle="--"
+    )
+
+    ax.set_xlabel("False Positive Rate")
+    ax.set_ylabel("True Positive Rate")
+
+    ax.set_title(
+        f"ROC Curve - {best_model_name}"
+    )
+
+    ax.legend(loc="lower right")
+
+    fig.tight_layout()
+
+    fig.savefig(
+        os.path.join(
+            OUTPUT_DIR,
+            "roc_curve.png"
+        ),
+        dpi=200,
+        bbox_inches="tight"
+    )
+
+    plt.close(fig)
+
+print("\nFinal graphs saved:")
+print(os.path.join(OUTPUT_DIR, "confusion_matrix.png"))
+print(os.path.join(OUTPUT_DIR, "roc_curve.png"))
+
+
 
 print("\nFinal metrics saved to:")
 print(final_metrics_path)

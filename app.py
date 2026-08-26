@@ -225,7 +225,7 @@ elif page == "Model Performance":
     st.header("Final Model Evaluation")
 
     st.write(
-        "The Support Vector Machine model was selected as the final "
+        "The Hyperparameter-Tuned Random Forest model was selected as the final "
         "model based on validation ROC-AUC."
     )
 
@@ -531,4 +531,5 @@ st.caption(
     "Water Potability Prediction Using Machine Learning | "
     "Random Forest and SVM based classification project"
 )
+
 
