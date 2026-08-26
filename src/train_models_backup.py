@@ -1,15 +1,12 @@
-﻿import os
+import os
 import numpy as np
 import pandas as pd
-import joblib
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
-
-from sklearn.model_selection import StratifiedKFold, cross_val_score, GridSearchCV
 
 from sklearn.metrics import (
     accuracy_score,
@@ -19,6 +16,8 @@ from sklearn.metrics import (
     roc_auc_score,
     confusion_matrix
 )
+
+import joblib
 
 
 # ============================================================
@@ -75,43 +74,16 @@ y_test = np.load(
     os.path.join(PROCESSED_DIR, "y_test.npy")
 )
 
+
 print("Processed data loaded successfully.")
+
 print("Training:", X_train.shape)
 print("Validation:", X_val.shape)
 print("Testing:", X_test.shape)
 
 
 # ============================================================
-# Evaluation Function
-# ============================================================
-
-def evaluate_model(model, X, y):
-
-    predictions = model.predict(X)
-    probabilities = model.predict_proba(X)[:, 1]
-
-    return {
-        "Accuracy": accuracy_score(y, predictions),
-        "Precision": precision_score(
-            y, predictions, zero_division=0
-        ),
-        "Recall": recall_score(
-            y, predictions, zero_division=0
-        ),
-        "F1-Score": f1_score(
-            y, predictions, zero_division=0
-        ),
-        "ROC-AUC": roc_auc_score(
-            y, probabilities
-        ),
-        "Confusion Matrix": confusion_matrix(
-            y, predictions
-        )
-    }
-
-
-# ============================================================
-# Base Models
+# Define Models
 # ============================================================
 
 models = {
@@ -119,8 +91,7 @@ models = {
     "Random Forest": RandomForestClassifier(
         n_estimators=300,
         random_state=42,
-        class_weight="balanced",
-        n_jobs=-1
+        class_weight="balanced"
     ),
 
     "SVM": SVC(
@@ -148,17 +119,69 @@ models = {
 
 
 # ============================================================
-# Train Base Models
+# Evaluation Function
+# ============================================================
+
+def evaluate_model(model, X, y):
+
+    predictions = model.predict(X)
+
+    probabilities = model.predict_proba(X)[:, 1]
+
+    accuracy = accuracy_score(y, predictions)
+
+    precision = precision_score(
+        y,
+        predictions,
+        zero_division=0
+    )
+
+    recall = recall_score(
+        y,
+        predictions,
+        zero_division=0
+    )
+
+    f1 = f1_score(
+        y,
+        predictions,
+        zero_division=0
+    )
+
+    roc_auc = roc_auc_score(
+        y,
+        probabilities
+    )
+
+    cm = confusion_matrix(
+        y,
+        predictions
+    )
+
+    return {
+        "Accuracy": accuracy,
+        "Precision": precision,
+        "Recall": recall,
+        "F1-Score": f1,
+        "ROC-AUC": roc_auc,
+        "Confusion Matrix": cm
+    }
+
+
+# ============================================================
+# Train and Validate Models
 # ============================================================
 
 validation_results = []
+
 trained_models = {}
+
 
 for name, model in models.items():
 
-    print("\n" + "=" * 70)
+    print("\n" + "=" * 60)
+
     print("Training:", name)
-    print("=" * 70)
 
     model.fit(
         X_train,
@@ -189,214 +212,18 @@ for name, model in models.items():
     })
 
     print("Accuracy :", round(results["Accuracy"], 4))
+
     print("Precision:", round(results["Precision"], 4))
+
     print("Recall   :", round(results["Recall"], 4))
+
     print("F1-Score :", round(results["F1-Score"], 4))
+
     print("ROC-AUC  :", round(results["ROC-AUC"], 4))
 
     print("Confusion Matrix:")
+
     print(results["Confusion Matrix"])
-
-
-# ============================================================
-# Proposed Model
-# Hyperparameter-Tuned Random Forest
-# ============================================================
-
-print("\n")
-print("=" * 70)
-print("PROPOSED MODEL")
-print("Hyperparameter-Tuned Random Forest")
-print("=" * 70)
-
-rf = RandomForestClassifier(
-    random_state=42,
-    class_weight="balanced",
-    n_jobs=-1
-)
-
-param_grid = {
-
-    "n_estimators": [200, 300],
-
-    "max_depth": [None, 10, 20],
-
-    "min_samples_split": [2, 5],
-
-    "min_samples_leaf": [1, 2],
-
-    "max_features": ["sqrt", "log2"]
-}
-
-
-grid_search = GridSearchCV(
-
-    estimator=rf,
-
-    param_grid=param_grid,
-
-    scoring="roc_auc",
-
-    cv=5,
-
-    n_jobs=-1,
-
-    verbose=1
-)
-
-
-grid_search.fit(
-    X_train,
-    y_train
-)
-
-proposed_model = grid_search.best_estimator_
-
-trained_models[
-    "Proposed Model - Tuned Random Forest"
-] = proposed_model
-
-
-print("\nBest Proposed Model Parameters:")
-
-print(
-    grid_search.best_params_
-)
-
-print(
-    "Best Cross-Validation ROC-AUC:",
-    round(grid_search.best_score_, 4)
-)
-
-
-# ============================================================
-# Proposed Model Validation
-# ============================================================
-
-proposed_results = evaluate_model(
-    proposed_model,
-    X_val,
-    y_val
-)
-
-validation_results.append({
-
-    "Model": "Proposed Model - Tuned Random Forest",
-
-    "Accuracy": proposed_results["Accuracy"],
-
-    "Precision": proposed_results["Precision"],
-
-    "Recall": proposed_results["Recall"],
-
-    "F1-Score": proposed_results["F1-Score"],
-
-    "ROC-AUC": proposed_results["ROC-AUC"]
-})
-
-
-print("\nProposed Model Validation Results")
-
-print(
-    "Accuracy :",
-    round(proposed_results["Accuracy"], 4)
-)
-
-print(
-    "Precision:",
-    round(proposed_results["Precision"], 4)
-)
-
-print(
-    "Recall   :",
-    round(proposed_results["Recall"], 4)
-)
-
-print(
-    "F1-Score :",
-    round(proposed_results["F1-Score"], 4)
-)
-
-print(
-    "ROC-AUC  :",
-    round(proposed_results["ROC-AUC"], 4)
-)
-
-print("\nConfusion Matrix:")
-print(proposed_results["Confusion Matrix"])
-
-
-# ============================================================
-# Cross-Validation for All Models
-# ============================================================
-
-print("\n")
-print("=" * 70)
-print("5-FOLD CROSS-VALIDATION")
-print("=" * 70)
-
-cv = StratifiedKFold(
-    n_splits=5,
-    shuffle=True,
-    random_state=42
-)
-
-cv_results = []
-
-for name, model in trained_models.items():
-
-    print("\nCross-validating:", name)
-
-    scores = cross_val_score(
-        model,
-        X_train,
-        y_train,
-        cv=cv,
-        scoring="roc_auc",
-        n_jobs=-1
-    )
-
-    cv_results.append({
-
-        "Model": name,
-
-        "CV_ROC_AUC_Mean": scores.mean(),
-
-        "CV_ROC_AUC_Std": scores.std()
-    })
-
-    print(
-        "Fold Scores:",
-        np.round(scores, 4)
-    )
-
-    print(
-        "Mean ROC-AUC:",
-        round(scores.mean(), 4)
-    )
-
-    print(
-        "Std:",
-        round(scores.std(), 4)
-    )
-
-
-cv_df = pd.DataFrame(
-    cv_results
-)
-
-cv_path = os.path.join(
-    OUTPUT_DIR,
-    "cross_validation_results.csv"
-)
-
-cv_df.to_csv(
-    cv_path,
-    index=False
-)
-
-print("\nCross-validation results saved:")
-print(cv_path)
 
 
 # ============================================================
@@ -414,24 +241,13 @@ results_df = results_df.sort_values(
 
 print("\n")
 print("=" * 70)
-print("FINAL VALIDATION MODEL COMPARISON")
+print("VALIDATION MODEL COMPARISON")
 print("=" * 70)
 
 print(
     results_df.to_string(
         index=False
     )
-)
-
-
-results_path = os.path.join(
-    OUTPUT_DIR,
-    "validation_results.csv"
-)
-
-results_df.to_csv(
-    results_path,
-    index=False
 )
 
 
@@ -445,14 +261,21 @@ best_model = trained_models[
     best_model_name
 ]
 
-print("\n")
-print("=" * 70)
-print("BEST MODEL SELECTION")
-print("=" * 70)
+print("\nBest Model:", best_model_name)
 
-print(
-    "Best Model:",
-    best_model_name
+
+# ============================================================
+# Save Validation Results
+# ============================================================
+
+results_path = os.path.join(
+    OUTPUT_DIR,
+    "validation_results.csv"
+)
+
+results_df.to_csv(
+    results_path,
+    index=False
 )
 
 
@@ -470,7 +293,9 @@ joblib.dump(
     best_model_path
 )
 
+
 print("\nBest model saved to:")
+
 print(best_model_path)
 
 
@@ -520,6 +345,7 @@ print(
 )
 
 print("\nConfusion Matrix:")
+
 print(
     test_results["Confusion Matrix"]
 )
@@ -545,7 +371,6 @@ final_metrics = pd.DataFrame([{
 
 }])
 
-
 final_metrics_path = os.path.join(
     OUTPUT_DIR,
     "final_test_metrics.csv"
@@ -557,30 +382,8 @@ final_metrics.to_csv(
 )
 
 
-# ============================================================
-# Save Final Confusion Matrix
-# ============================================================
-
-cm = test_results["Confusion Matrix"]
-
-cm_df = pd.DataFrame(
-    cm,
-    index=["Actual Non-Potable", "Actual Potable"],
-    columns=["Predicted Non-Potable", "Predicted Potable"]
-)
-
-cm_df.to_csv(
-    os.path.join(
-        OUTPUT_DIR,
-        "final_confusion_matrix.csv"
-    )
-)
-
-
 print("\nFinal metrics saved to:")
+
 print(final_metrics_path)
 
-print("\n")
-print("=" * 70)
-print("MODEL TRAINING COMPLETED SUCCESSFULLY")
-print("=" * 70)
+print("\nModel training completed successfully!")
