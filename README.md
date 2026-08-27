@@ -298,6 +298,23 @@ The `outputs` folder contains:
 * ROC-AUC comparison
 * Overall model comparison
 
+## Screenshots
+
+### Dashboard
+![Dashboard](screenshots/dashboard.JPG)
+
+### Dataset Summary
+![Dataset Summary](screenshots/dataset_summary.JPG)
+
+### Final Model Evaluation
+![Final Model Evaluation](screenshots/model_evaluation.JPG)
+
+### Model Comparison
+![Model Comparison](screenshots/model_comparison.JPG)
+
+### Water Potability Prediction
+![Water Potability Prediction](screenshots/prediction.JPG)
+
 ## Conclusion
 
 This project demonstrates machine learning-based water potability classification using physicochemical water-quality parameters.
